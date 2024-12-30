@@ -1,5 +1,5 @@
 """This is where all analysis methods wil be kept in a module structure"""
-
+import os
 def escape(usr_input):
     if str(usr_input.lower())=='q':
         return False
@@ -33,6 +33,24 @@ def selection():
             
 def data_exploration():
     print("""Welcome this is the data exploration function""")
+    items=os.listdir('data')
+    if items:
+        n=1
+        for item in items:
+            print(f'{n} {item}')
+            n+=1
+        while True:
+            operateon=input("Enter the number of the file you would like to analyze: ")    
+            if operateon.isnumeric():
+                if int(operateon) in range(len(items)+1):
+                    print(items[int(operateon)-1])
+                else:
+                    print("Not within range of files")
+            else:
+                print("Not integer")
+                return False
+    else:
+        print("No files in data")
 
 def ConfidenceInterval():
     print("This is the confidence interval function. This is currently under work")
