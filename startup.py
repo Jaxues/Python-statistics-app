@@ -1,9 +1,7 @@
 """Simple python based script to do statistical analysis"""
-
 import os,analysis
+from pyenvvariables import data_directory
 print("""This is a package written in python that implements some basic statistical methods in the command line""")
-cwd=os.getcwd()
-data_directory=f"{cwd}/data"
 def main():
     """See if data directory exists"""
     if os.path.exists(data_directory) is True:
