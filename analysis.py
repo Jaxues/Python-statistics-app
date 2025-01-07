@@ -1,5 +1,6 @@
 """This is where all analysis methods wil be kept in a module structure"""
 import os
+import pyenvvariables
 import pandas as pd
 def escape(usr_input):
     if str(usr_input.lower())=='q':
@@ -42,10 +43,12 @@ def data_exploration():
             operateon=input("Enter the number of the file you would like to analyze: ")    
             if operateon.isnumeric():
                 if int(operateon) in range(len(items)+1):
-                    file=pd.read_csv(f"{os.getcwd()}/data/{items[int(operateon)-1]}")
+                    file=pd.read_csv(f"{pyenvvariables.data_directory}/{items[int(operateon)-1]}")
                     print(file)
                     categories=list(file.columns)
-                    print(getcolumnvars(categories))
+                    col_var=getcolumnvars(categories)
+                    print(col_var)
+                    print(file[col_var])
                     return False
                 else:
                     print("Not within range of files")
