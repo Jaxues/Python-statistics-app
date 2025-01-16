@@ -1,5 +1,5 @@
 """Simple python based script to do statistical analysis"""
-import os,analysis
+import os,functions
 from pyenvvariables import data_directory
 print("""This is a program written in python that implements methods to calculate descriptive statistics, confidence intervals, or perform hypothesis testing.\nNote this program doesn't create any graphs but will produce useful numerical output.""")
 def main():
@@ -15,6 +15,6 @@ def main():
         print("Directory has data")
     else:
         print("Directory has no data")
-    analysis.selection()
+    functions.selection()
 
 main()
