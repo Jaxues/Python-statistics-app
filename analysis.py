@@ -24,6 +24,9 @@ def selection():
                 ConfidenceInterval()
             elif usr_input=='3':
                 HypothesisTesting()
+            elif usr_input.lower()=='help':
+                help()
+
             else:
                 print("Please enter a valid input")
         else:
@@ -43,13 +46,29 @@ def data_exploration():
             operateon=input("Enter the number of the file you would like to analyze: ")    
             if operateon.isnumeric():
                 if int(operateon) in range(len(items)+1):
-                    file=pd.read_csv(f"{pyenvvariables.data_directory}/{items[int(operateon)-1]}")
-                    print(file)
+                    path_to_data=f"{pyenvvariables.data_directory}/{items[int(operateon)-1]}"
+                    file=pd.read_csv(path_to_data)
                     categories=list(file.columns)
                     col_var=getcolumnvars(categories)
-                    print(col_var)
-                    print(file[col_var])
-                    return False
+                    select_data=file[col_var]
+                    select_data=select_data.dropna()
+                    print(f"Descriptive statistics for {col_var}\n {'='*23}")
+                    if pd.api.types.is_numeric_dtype(select_data):
+                        description=select_data.describe().to_list()
+                        print(f"Sample size: {select_data.size}")
+                        print(f"Mean: {round(select_data.mean(),2)}")
+                        print(f"Median: {select_data.median()}")
+                        print(f"Standard Deviation: {round(select_data.std(),2)}")
+                        print(f"Lower quartile:{description[4]}")
+                        print(f"Upper Quartile:{description[6]}")
+                        print(f"Maximum:{select_data.max()}")
+                        print(f"Minimum:{select_data.min()}")
+                        return False
+                    else:
+                        print("Categorical data summary")
+                        print(select_data.describe())
+                        return False
+
                 else:
                     print("Not within range of files")
             elif operateon.lower()=='q':
@@ -62,7 +81,6 @@ def data_exploration():
 
 def getcolumnvars(colvars):
         n=0
-        print(colvars)
         for category in colvars:
                             print(f"{n+1} {category}")
                             n+=1
@@ -77,4 +95,30 @@ def ConfidenceInterval():
 def HypothesisTesting():
     print("This is the hypothesis testing function")
 
+def help():
+    print("This is the helper function\n")
+    first_call=True
+    while True:
 
+        if first_call is True:
+            selection=input("What is the area you would like help with. \n 1 Data exploration \n 2 hypothesis testing \n 3 condifence interval \n 4 general faq and questions about program\n Please type the number corresponding to your problem else type q or quit to exit: ")
+        else:
+            selection=input("\n Please enter the name of the command you would like. \n If you have forgotten what the commands are you can type 'commands' to get them again: ")
+        print(selection)
+        if selection=='1':
+            first_call=False
+            print("This is area of explaining some functionality of data exploration function")
+        elif selection=='2':
+            print("This is the area explaining functionality and ideas of confidence interval functionality")
+        elif selection=='3':
+            print("This is area for questions about hypothesis testing function")
+        elif selection.lower=='commands':
+            first_call=False
+        elif selection.lower()=='q' or selection.lower()=='quit':
+            print("Help function exited")
+            return False
+        elif selection.lower()=='4':
+            print("This is a simple cli based program written in python \n It's main functionality is to calculate descriptive statistics, confidence intervals, as well as perform hypothesis testing.")
+            print("This program assume that it is run in a virtual enviorment with all packages from 'requirements.txt' installed.\n It also assumes that data are in the form of .csv files")
+        else:
+            print("Please enter a valid command")
