@@ -67,6 +67,10 @@ def data_exploration():
                     else:
                         print("Categorical data summary")
                         print(select_data.describe())
+                        categories=select_data.unique().tolist()
+                        print(f"Categories in {col_var}")
+                        for category in categories:
+                            print(category)
                         return False
 
                 else:
