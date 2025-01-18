@@ -1,6 +1,6 @@
 """Simple python based script to do statistical analysis"""
 import os,functions
-from pyenvvariables import data_directory
+from pyenvvariables import data_directory,output_directory
 print("""This is a program written in python that implements methods to calculate descriptive statistics, confidence intervals, or perform hypothesis testing.\nNote this program doesn't create any graphs but will produce useful numerical output.""")
 def main():
     """See if data directory exists"""
@@ -9,6 +9,10 @@ def main():
     else:
         os.mkdir('data')
         print("Data directory created")
+    if os.path.exists(output_directory) is True:
+        print("Output directory exists")
+    else:
+        os.mkdir('output')
 
     """See if data directory is empty"""
     if os.listdir(data_directory):

@@ -2,11 +2,32 @@
 import os
 import pyenvvariables
 import pandas as pd
+import datetime
+from pyenvvariables import output_directory
 def escape(usr_input):
     if str(usr_input.lower())=='q':
         return False
     else:
         return True
+
+
+def save_file(output_list):
+    while True:
+            save_file=input("Would you like to save file")
+            if save_file.lower() in ['y','yes']:
+                filename=input("Enter a filename else it will autofill with timestamp")
+                saved_file=os.path.join(output_directory,)
+                if filename.strip is None:
+                        file=open(saved_file+ f"Data {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}.txt",'x')
+                if filename.strip():
+                        file=open(saved_file+filename,'x')
+
+                file=open(filename,'w')
+                for output in output_list:
+                    file.write(output)
+
+            elif save_file.lower() in ['n','no'] or not save_file.strip():
+                    return False
 
 def selection():
     print("""Please select one of the operations you would like to do, type number for each
@@ -52,29 +73,30 @@ def data_exploration():
                     col_var=getcolumnvars(categories)
                     select_data=file[col_var]
                     select_data=select_data.dropna()
-                    print(f"Descriptive statistics for {col_var}\n {'='*23}")
+                    stat_output=[]
                     if pd.api.types.is_numeric_dtype(select_data):
                         description=select_data.describe().to_list()
-                        print(f"Sample size: {select_data.size}")
-                        print(f"Mean: {round(select_data.mean(),2)}")
-                        print(f"Median: {select_data.median()}")
-                        print(f"Standard Deviation: {round(select_data.std(),2)}")
-                        print(f"Lower quartile:{description[4]}")
-                        print(f"Upper Quartile:{description[6]}")
-                        print(f"Maximum:{select_data.max()}")
-                        print(f"Minimum:{select_data.min()}")
-                        return False
+                        stat_output=[f"Descriptive statistics for {col_var}\n {'='*23}",
+                                     f"Sample size: {select_data.size}",
+                                     f"Mean: {round(select_data.mean(),2)}",
+                                     f"Median: {select_data.median()}",
+                                     f"Standard Deviation: {round(select_data.std(),2)}",
+                                     f"Lower quartile:{description[4]}",
+                                     f"Upper Quartile:{description[6]}",
+                                     f"Maximum:{select_data.max()}",
+                                     f"Minimum:{select_data.min()}"]
                     else:
                         print("Categorical data summary")
-                        print(select_data.describe())
-                        categories=select_data.unique().tolist()
                         print(f"Categories in {col_var}")
-                        for category in categories:
-                            print(category)
-                        return False
+                        categorical_description=select_data.value_counts().tolist()
+                        print(categorical_description)
 
+
+                    for stat in stat_output:
+                        print(stat)
                 else:
                     print("Not within range of files")
+
             elif operateon.lower()=='q':
                 return False
             else:
