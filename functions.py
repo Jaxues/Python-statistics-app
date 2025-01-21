@@ -1,9 +1,11 @@
 """This is where all analysis methods wil be kept in a module structure"""
 import os
-import pyenvvariables
+from numpy import exp
 import pandas as pd
 import datetime
-from pyenvvariables import output_directory
+
+from pandas.core.dtypes.dtypes import re
+from pyenvvariables import output_directory, data_directory
 def escape(usr_input):
     if str(usr_input.lower())=='q':
         return False
@@ -32,8 +34,9 @@ def save_file(output_list):
 def selection():
     print("""Please select one of the operations you would like to do, type number for each
           \n 1 Data exploration
-          \n 2 Confidence Interval
-          \n 3 Hypothesis testing
+          \n 2 Linear Regression
+          \n 3 Confidence Interval
+          \n 4 Hypothesis testing
           \n If you would like help type 'help'
           \n If you would like to leave type 'q' to exit""")
     while True:
@@ -41,9 +44,11 @@ def selection():
         if escape(usr_input):
             if usr_input=='1':
                 data_exploration()
-            elif usr_input=='2':
-                ConfidenceInterval()
+            if usr_input=='2':
+                linearregression()
             elif usr_input=='3':
+                ConfidenceInterval()
+            elif usr_input=='4':
                 HypothesisTesting()
             elif usr_input.lower()=='help':
                 help()
@@ -53,7 +58,7 @@ def selection():
         else:
             print("Proccess exited")
             return False
-            
+
 def data_exploration():
     print("""Welcome this is the data exploration function""")
     items=os.listdir('data')
@@ -67,14 +72,16 @@ def data_exploration():
             operateon=input("Enter the number of the file you would like to analyze: ")    
             if operateon.isnumeric():
                 if int(operateon) in range(len(items)+1):
-                    path_to_data=f"{pyenvvariables.data_directory}/{items[int(operateon)-1]}"
+                    path_to_data=f"{data_directory}/{items[int(operateon)-1]}"
                     file=pd.read_csv(path_to_data)
                     categories=list(file.columns)
-                    col_var=getcolumnvars(categories)
+                    col_var=getcolumnvars(categories,'analysis')
                     select_data=file[col_var]
                     select_data=select_data.dropna()
                     stat_output=[]
-                    if pd.api.types.is_numeric_dtype(select_data):
+                    if select_data.empty:
+                        print(f"No Data in {col_var}")
+                    elif pd.api.types.is_numeric_dtype(select_data):
                         description=select_data.describe().to_list()
                         stat_output=[f"Descriptive statistics for {col_var}\n {'='*23}",
                                      f"Sample size: {select_data.size}",
@@ -86,14 +93,17 @@ def data_exploration():
                                      f"Maximum:{select_data.max()}",
                                      f"Minimum:{select_data.min()}"]
                     else:
-                        print("Categorical data summary")
-                        print(f"Categories in {col_var}")
                         categorical_description=select_data.value_counts().tolist()
-                        print(categorical_description)
-
+                        colum_names=select_data.unique().tolist()
+                        stat_output=["Categorical data summary",f"Categories in {col_var}"]
+                        for column,frequency in zip(colum_names,categorical_description):
+                            total=f"{column}:{frequency} occurences"
+                            proportion=f"{column}:{round(frequency/select_data.size,2)} proportion of total"
+                            stat_output+=total,proportion
 
                     for stat in stat_output:
                         print(stat)
+                    return False
                 else:
                     print("Not within range of files")
 
@@ -105,16 +115,61 @@ def data_exploration():
         print("No files in data directory")
 
 
-def getcolumnvars(colvars):
+def getcolumnvars(colvars,keyword):
         n=0
         for category in colvars:
                             print(f"{n+1} {category}")
                             n+=1
-        explantory_index=input("Select column for explantory")
+        explantory_index=input(f"Select column for {keyword} ")
         return colvars[int(explantory_index)-1]
 
 
+def linearregression():
+    print("This is the function for linear regression")
+    items=os.listdir('data')
+    if items:
+        n=1
+        for item in items:
+            if item.endswith(".csv"):
+                print(f'{n} {item}')
+                n+=1
+        while True:
+            operateon=input("Enter the number of the file you would like to analyze: ")    
+            if operateon.isnumeric():
+                if int(operateon) in range(len(items)+1):
+                    path_to_data=f"{data_directory}/{items[int(operateon)-1]}"
+                    file=pd.read_csv(path_to_data)
+                    categories=list(file.columns)
+                    stat_output=[]
+                    explantory_var=getcolumnvars(categories,'explantory')
+                    response_var=getcolumnvars(categories,'response')
+                    explantory_val=file[explantory_var]
+                    response_val=file[response_var]
+                    if explantory_val.empty or response_val.empty:
+                        print("One column is empty please select a different column")
+                    else:
+                        correlation=explantory_val.corr(response_val)
+                        if correlation<0:
+                            relationship='negative'
 
+                        elif correlation>0:
+                            relationship='positive'
+                        elif correlation==0:
+                            relation+=f"There is no relationship betwen {explantory_var} and {response_var}"
+                            return False
+                        if abs(correlation)==1:
+                            strength='perfect'
+                        elif abs(correlation)>0.69:
+                            strength="strong"
+                        elif abs(correlation)>0.39:
+                            strength="moderate"
+                        else:
+                            strength="weak"
+                    stat_output.append(f"There is a {strength} {relationship} between {explantory_var} and {response_var}")
+                
+                    for stat in stat_output:
+                        print(stat)
+                
 def ConfidenceInterval():
     print("This is the confidence interval function. This is currently under work")
 
