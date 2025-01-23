@@ -1,10 +1,8 @@
 """This is where all analysis methods wil be kept in a module structure"""
 import os
-from numpy import exp
 import pandas as pd
 import datetime
-
-from pandas.core.dtypes.dtypes import re
+from scipy import stats
 from pyenvvariables import output_directory, data_directory
 def escape(usr_input):
     if str(usr_input.lower())=='q':
@@ -58,6 +56,7 @@ def selection():
         else:
             print("Proccess exited")
             return False
+
 
 def data_exploration():
     print("""Welcome this is the data exploration function""")
@@ -147,6 +146,10 @@ def linearregression():
                     response_val=file[response_var]
                     if explantory_val.empty or response_val.empty:
                         print("One column is empty please select a different column")
+                        return False
+                    elif pd.api.types.is_numeric_dtype(explantory_val) is False or pd.api.types.is_numeric_dtype(response_val) is False:
+                        print("One column has values that aren't numeric. Can't perform linear regression this data")
+                        return False
                     else:
                         correlation=explantory_val.corr(response_val)
                         if correlation<0:
@@ -165,16 +168,32 @@ def linearregression():
                             strength="moderate"
                         else:
                             strength="weak"
-                    stat_output.append(f"There is a {strength} {relationship} between {explantory_var} and {response_var}")
-                
+                    stat_output+=f"There is a {strength} {relationship} between {explantory_var} and {response_var}",f"Correlation coefficient is {round(correlation,2)}"
+                    scipy_linregress=stats.linregress(explantory_val,response_val)
+                    stat_output+=f"The line of best fit for the relationship between {explantory_var} and {response_var} is given by: y={round(scipy_linregress[0],2)}*x+{round(scipy_linregress[1],2)}",f"With standard error of gradient being {round(scipy_linregress[4],2)}"
+
                     for stat in stat_output:
                         print(stat)
+                    return False
                 
 def ConfidenceInterval():
-    print("This is the confidence interval function. This is currently under work")
+    print("This is the confidence interval function. This is currently under work") 
+
 
 def HypothesisTesting():
     print("This is the hypothesis testing function")
+    while True:
+        alpha_value=input("Enter the alpha value you would like. If you put nothing it will default to a 95% confidence interval")
+        if alpha_value.strip() is None:
+            alpha_value=0.95
+            return False
+        elif alpha_value.isnumeric() and int(alpha_value)!=0:
+            return False
+        else:
+            print("Please chose a valid alpha value")
+
+
+
 
 def help():
     print("This is the helper function\n")
