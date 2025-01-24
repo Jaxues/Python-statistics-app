@@ -11,12 +11,33 @@ def escape(usr_input):
         return True
 
 
+def print_statouput(stat_output):
+    """Prints all statistics in given statoutput"""
+    for stat in stat_output:
+        print(stat)
+
+def get_filesnames():
+    items=os.listdir('data')
+    if items:
+        n=1
+        print(items)
+        for item in items:
+            if item.endswith(".csv"):
+                print(f'{n} {item}')
+                n+=1
+        return items
+
+    else:
+        print("No files in data directory, please add files before trying to perform functions")
+
+
 def save_file(output_list):
     while True:
             save_file=input("Would you like to save file")
             if save_file.lower() in ['y','yes']:
                 filename=input("Enter a filename else it will autofill with timestamp")
                 saved_file=os.path.join(output_directory,)
+                print(saved_file)
                 if filename.strip is None:
                         file=open(saved_file+ f"Data {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}.txt",'x')
                 if filename.strip():
@@ -29,6 +50,7 @@ def save_file(output_list):
             elif save_file.lower() in ['n','no'] or not save_file.strip():
                     return False
 
+save_file(list("This is a test"))
 def selection():
     print("""Please select one of the operations you would like to do, type number for each
           \n 1 Data exploration
@@ -60,13 +82,8 @@ def selection():
 
 def data_exploration():
     print("""Welcome this is the data exploration function""")
-    items=os.listdir('data')
+    items=get_filesnames()
     if items:
-        n=1
-        for item in items:
-            if item.endswith(".csv"):
-                print(f'{n} {item}')
-                n+=1
         while True:
             operateon=input("Enter the number of the file you would like to analyze: ")    
             if operateon.isnumeric():
@@ -100,8 +117,7 @@ def data_exploration():
                             proportion=f"{column}:{round(frequency/select_data.size,2)} proportion of total"
                             stat_output+=total,proportion
 
-                    for stat in stat_output:
-                        print(stat)
+                    print_statouput(stat_output)
                     return False
                 else:
                     print("Not within range of files")
@@ -121,6 +137,27 @@ def getcolumnvars(colvars,keyword):
                             n+=1
         explantory_index=input(f"Select column for {keyword} ")
         return colvars[int(explantory_index)-1]
+
+
+def is_float(number):
+    try: 
+        float(number)
+        return True
+    except:
+        return False
+
+def getalphavalue():
+    while True:
+        alpha=input("Enter a value for signifance level")
+        if alpha.isnumeric() or is_float(alpha):
+            if float(alpha)==float(0):
+                print("Can't have alpha of Zero. This would reject all findings.")
+            elif float(alpha)>=float(1):
+                print("Can't have alpha of 1 or more this would accept all values.")
+            else:
+                return alpha
+        else:
+            print("Alpha value has to be numeric")
 
 
 def linearregression():
@@ -172,25 +209,25 @@ def linearregression():
                     scipy_linregress=stats.linregress(explantory_val,response_val)
                     stat_output+=f"The line of best fit for the relationship between {explantory_var} and {response_var} is given by: y={round(scipy_linregress[0],2)}*x+{round(scipy_linregress[1],2)}",f"With standard error of gradient being {round(scipy_linregress[4],2)}"
 
-                    for stat in stat_output:
-                        print(stat)
+                    print_statouput(stat_output)
                     return False
                 
 def ConfidenceInterval():
     print("This is the confidence interval function. This is currently under work") 
 
 
+
 def HypothesisTesting():
-    print("This is the hypothesis testing function")
-    while True:
-        alpha_value=input("Enter the alpha value you would like. If you put nothing it will default to a 95% confidence interval")
-        if alpha_value.strip() is None:
-            alpha_value=0.95
-            return False
-        elif alpha_value.isnumeric() and int(alpha_value)!=0:
-            return False
-        else:
-            print("Please chose a valid alpha value")
+
+    predefined_stats=input("This is the hypothesis testing function \n Press (1) if you have predefined mean and standard deviation for hypothesis testing \n Press (2) if you want to calculate mean and standard deviation")
+    alpha=getalphavalue()
+
+    variable=getcolumnvars()
+
+    print(alpha)
+
+
+
 
 
 
