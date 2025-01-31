@@ -3,6 +3,7 @@
 import os
 import pandas as pd
 import datetime
+import numpy as np
 from scipy import stats
 from pyenvvariables import output_directory, data_directory
 
@@ -87,28 +88,26 @@ def getalphavalue():
 
 def save_file(output_list):
     while True:
-        save_file = input("Would you like to save file")
+        save_file = input("Would you like to save file: ")
         if save_file.lower() in ["y", "yes"]:
-            filename = input("Enter a filename else it will autofill with timestamp")
+            filename = input("Enter a filename else it will autofill with timestamp: ")
             saved_file = os.path.join(
                 output_directory,
             )
-            print(saved_file)
-            if filename.strip is None:
-                file = open(
-                    saved_file
-                    + f"Data {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}.txt",
-                    "x",
-                )
-            if filename.strip():
-                file = open(saved_file + filename, "x")
-
+            if not filename or filename.isspace():
+                filename = f"{saved_file}/{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}.txt"
+            else:
+                filename = f"{saved_file}/{filename}.txt"
             file = open(filename, "w")
             for output in output_list:
                 file.write(output)
+                file.write("\n")
+            return False
 
         elif save_file.lower() in ["n", "no"] or not save_file.strip():
             return False
+        else:
+            print("Please enter either yes or no")
 
 
 def selection():
@@ -123,6 +122,7 @@ def selection():
     )
     while True:
         usr_input = input("Command: ")
+        print(usr_input)
         if escape(usr_input):
             if usr_input == "1":
                 data_exploration()
@@ -152,6 +152,7 @@ def data_exploration():
         stat_output = []
         if select_data.empty:
             print(f"No Data in {col_var}")
+            return
         elif pd.api.types.is_numeric_dtype(select_data):
             description = select_data.describe().to_list()
             stat_output = [
@@ -175,6 +176,7 @@ def data_exploration():
                 stat_output += total, proportion
 
         print_statouput(stat_output)
+        save_file(stat_output)
 
 
 def linearregression():
@@ -208,6 +210,7 @@ def linearregression():
                     relationship = "positive"
                 if abs(correlation) == 1:
                     strength = "perfect"
+                    
                 elif abs(correlation) > 0.69:
                     strength = "strong"
                 elif abs(correlation) > 0.39:
@@ -225,17 +228,20 @@ def linearregression():
                 )
 
             print_statouput(stat_output)
+            save_file(stat_output)
+
 
 def ConfidenceInterval():
-    print("This is the confidence interval function. This is currently under work")
-    alpha=getalphavalue()
+    print("This is the confidence interval function. This is will calculate a confidence interval for the mean based on input given")
+    alpha = getalphavalue()
     items, file, categories = get_filesnames()
-    print(alpha)
-    print(categories)
-    print(file)
-
-
-    
+    col_var = getcolumnvars(categories, "analysis")
+    select_data = file[col_var]
+    select_data = select_data.dropna()
+    stat_output = []
+    print(select_data.tolist())
+    print(np.mean(select_data.tolist()))
+ConfidenceInterval()    
 
 
 def HypothesisTesting():
