@@ -239,9 +239,6 @@ def ConfidenceInterval():
     select_data = file[col_var]
     select_data = select_data.dropna()
     stat_output = []
-    print(select_data.tolist())
-    print(np.mean(select_data.tolist()))
-ConfidenceInterval()    
 
 
 def HypothesisTesting():
