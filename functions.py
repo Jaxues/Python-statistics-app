@@ -1,9 +1,11 @@
 """This is where all analysis methods wil be kept in a module structure"""
 
 import os
+from numpy._core import numeric
 import pandas as pd
 import datetime
 import numpy as np
+from pandas.core.computation.ops import isnumeric
 from scipy import stats
 from pyenvvariables import output_directory, data_directory
 
@@ -81,7 +83,7 @@ def getalphavalue():
             elif float(alpha) < 0:
                 print("Can't have an alpha value of less than zero.")
             else:
-                return alpha
+                return float(alpha)
         else:
             print("Alpha value has to be numeric")
 
@@ -102,10 +104,10 @@ def save_file(output_list):
             for output in output_list:
                 file.write(output)
                 file.write("\n")
-            return False
+            return
 
         elif save_file.lower() in ["n", "no"] or not save_file.strip():
-            return False
+            return
         else:
             print("Please enter either yes or no")
 
@@ -122,7 +124,6 @@ def selection():
     )
     while True:
         usr_input = input("Command: ")
-        print(usr_input)
         if escape(usr_input):
             if usr_input == "1":
                 data_exploration()
@@ -134,7 +135,6 @@ def selection():
                 HypothesisTesting()
             elif usr_input.lower() == "help":
                 help()
-
             else:
                 print("Please enter a valid input")
         else:
@@ -177,6 +177,7 @@ def data_exploration():
 
         print_statouput(stat_output)
         save_file(stat_output)
+        return
 
 
 def linearregression():
@@ -231,6 +232,37 @@ def linearregression():
             save_file(stat_output)
 
 
+def confidence_interval_mean(data,alpha):
+    sample_mean=np.mean(data)
+    standard_error=stats.sem(data)
+    degrees_freedom=len(data)-1
+    if len(data)<=30:
+        print("Less than 30 samples will use t test distrubtion")
+        return stats.t.interval(confidence=alpha,df=degrees_freedom,loc=sample_mean,scale=standard_error)
+    else:
+        print("More than 30 samples will use normal distrubtion")
+        return stats.norm.interval(alpha,sample_mean,standard_error)
+
+def confidence_interval_median(data,alpha):
+    print("Calculate CI for median using Bootstrap")
+
+def confidence_interval_std(data,alpha):
+    print("Calculates CI using Chi squared")
+    num=len(data)
+    standard_dev=np.std(data,ddof=1)
+
+def confidence_difference_mean(data1,data2,alpha):
+    diff_mean=np.mean(data1)-np.mean(data2)
+    standard_error=stats.sem(data1)+stats.sem(data2)
+    confidence_interval_mean(diff_mean,standard_error)
+
+    print("Calculates difference between means and then create CI")
+
+def confidence_interval_proportion(data,alpha):
+    print(pd.unique(data))
+    return 1,2
+    
+
 def ConfidenceInterval():
     print("This is the confidence interval function. This is will calculate a confidence interval for the mean based on input given")
     alpha = getalphavalue()
@@ -239,17 +271,49 @@ def ConfidenceInterval():
     select_data = file[col_var]
     select_data = select_data.dropna()
     stat_output = []
+    if pd.api.types.is_numeric_dtype(select_data):
+        print("Select option to calculate interval for:")
+        statistic=""
+        numeric_statistics=['Mean','Median','Standard deviation', 'Difference in Mean']
+        for i,stat in enumerate(numeric_statistics):
+            print(f"({i+1}) {stat}")
+
+        while True:
+            option=input("command: ")
+            if option.isnumeric():
+                if int(option)-1 not in range(len(numeric_statistics)):
+                    print("Input needs to be in range of commands")
+                else:
+                    converted_data=select_data.to_list()
+                    if option==1:
+                        lower_bound,upper_bound=confidence_interval_mean(converted_data,alpha)
+                    elif option==2:
+                        confidence_interval_median(converted_data,alpha)
+                    elif option==3:
+                        confidence_interval_std(converted_data,alpha)
+                    elif option==4:
+                        second_var=getcolumnvars(categories,"analysis")
+                        second_column=file[second_var].dropna().to_list()
+                        confidence_difference_mean(converted_data,second_column,alpha)
+            else:
+                print("Please enter a valid input")
+
+
+    else:
+        print("Data is not numerical would you like to calculate Proportion for data")
+        lower_bound,upper_bound=confidence_interval_proportion(select_data,alpha)
+
+    stat_output.append(f"{alpha*100}% confidence interval of {col_var} for {statistic} is between {lower_bound:.4f} and {upper_bound:.4f}")
+    print_statouput(stat_output)
+    save_file(stat_output)
 
 
 def HypothesisTesting():
-
     predefined_stats = input(
         "This is the hypothesis testing function \n Press (1) if you have predefined mean and standard deviation for hypothesis testing \n Press (2) if you want to calculate mean and standard deviation"
     )
     alpha = getalphavalue()
-
     variable = getcolumnvars()
-
     print(alpha)
 
 
