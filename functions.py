@@ -118,8 +118,6 @@ def selection():
           \n 1 Data exploration
           \n 2 Linear Regression
           \n 3 Confidence Interval
-          \n 4 Hypothesis testing
-          \n If you would like help type 'help'
           \n If you would like to leave type 'q' to exit"""
     )
     while True:
@@ -131,10 +129,6 @@ def selection():
                 linearregression()
             elif usr_input == "3":
                 ConfidenceInterval()
-            elif usr_input == "4":
-                HypothesisTesting()
-            elif usr_input.lower() == "help":
-                help()
             else:
                 print("Please enter a valid input")
         else:
@@ -243,156 +237,22 @@ def confidence_interval_mean(data,alpha):
         print("More than 30 samples will use normal distrubtion")
         return stats.norm.interval(alpha,sample_mean,standard_error)
 
-def confidence_interval_median(data,alpha):
-    print("Calculate CI for median using Bootstrap")
-
-def confidence_interval_std(data,alpha):
-    print("Calculates CI using Chi squared")
-    num=len(data)
-    standard_dev=np.std(data,ddof=1)
-
-def confidence_difference_mean(data1,data2,alpha):
-    diff_mean=np.mean(data1)-np.mean(data2)
-    standard_error=stats.sem(data1)+stats.sem(data2)
-    confidence_interval_mean(diff_mean,standard_error)
-
-    print("Calculates difference between means and then create CI")
-
-def confidence_interval_proportion(data,alpha):
-    print(pd.unique(data))
-    return 1,2
-    
-
 def ConfidenceInterval():
     print("This is the confidence interval function. This is will calculate a confidence interval for the mean based on input given")
     alpha = getalphavalue()
     items, file, categories = get_filesnames()
-    col_var = getcolumnvars(categories, "analysis")
-    select_data = file[col_var]
-    select_data = select_data.dropna()
-    stat_output = []
-    if pd.api.types.is_numeric_dtype(select_data):
-        print("Select option to calculate interval for:")
-        statistic=""
-        numeric_statistics=['Mean','Median','Standard deviation', 'Difference in Mean']
-        for i,stat in enumerate(numeric_statistics):
-            print(f"({i+1}) {stat}")
-
-        while True:
-            option=input("command: ")
-            if option.isnumeric():
-                if int(option)-1 not in range(len(numeric_statistics)):
-                    print("Input needs to be in range of commands")
-                else:
-                    converted_data=select_data.to_list()
-                    if option==1:
-                        lower_bound,upper_bound=confidence_interval_mean(converted_data,alpha)
-                    elif option==2:
-                        confidence_interval_median(converted_data,alpha)
-                    elif option==3:
-                        confidence_interval_std(converted_data,alpha)
-                    elif option==4:
-                        second_var=getcolumnvars(categories,"analysis")
-                        second_column=file[second_var].dropna().to_list()
-                        confidence_difference_mean(converted_data,second_column,alpha)
-            else:
-                print("Please enter a valid input")
-
-
-    else:
-        print("Data is not numerical would you like to calculate Proportion for data")
-        lower_bound,upper_bound=confidence_interval_proportion(select_data,alpha)
-
-    stat_output.append(f"{alpha*100}% confidence interval of {col_var} for {statistic} is between {lower_bound:.4f} and {upper_bound:.4f}")
-    print_statouput(stat_output)
-    save_file(stat_output)
-
-
-def HypothesisTesting():
-    predefined_stats = input(
-        "This is the hypothesis testing function \n Press (1) if you have predefined mean and standard deviation for hypothesis testing \n Press (2) if you want to calculate mean and standard deviation"
-    )
-    alpha = getalphavalue()
-    variable = getcolumnvars()
-    print(alpha)
-
-
-def help():
-    print("This is the helper function\n")
-    first_call = True
-    while True:
-
-        if first_call is True:
-            selection = input(
-                "What is the area you would like help with. \n 1 Data exploration \n 2 confidenceence interval \n 3 hypothesis testing \n 4 general faq and questions about program\n Please type the number corresponding to your problem else type q or quit to exit: "
-            )
+    if items:
+        col_var = getcolumnvars(categories, "analysis")
+        select_data = file[col_var]
+        select_data = select_data.dropna()
+        stat_output = []
+        if pd.api.types.is_numeric_dtype(select_data):
+            print("Select option to calculate interval for:")
+            statistic=""
+            lower_bound,upper_bound=confidence_interval_mean(select_data.to_list(),alpha)
+            stat_output.append(f"{alpha*100}% confidence interval of {col_var} for {statistic} is between {lower_bound:.4f} and {upper_bound:.4f}")
+            print_statouput(stat_output)
+            save_file(stat_output)
         else:
-            selection = input(
-                "Please enter the name of the command you would like.\nIf you have forgotten what the commands are you can type 'commands' to get them again: "
-            )
-        print(selection)
-        if selection == "1":
-            first_call = False
-            print(
-                "This is area of explaining some functionality of data exploration function"
-            )
-            print(
-                "\n Firstly the data exploration function can currently perform analysis on one quantative variable. "
-            )
-            print(
-                "\n For categorical variables it will assume that is the form column name,column 2"
-            )
-            print(
-                "\n E.g. if there are 1000 rows in csv then if 600 of those rows are for categorical 1, categorical 1 will be variable with most occurences."
-            )
-            print(
-                "If your data is in a different format to this the current version of this program doesn't currently support that method"
-            )
+            print("Data is not numerical can't create confidence interval")
 
-            print(
-                "Here is a brief description of the meaning of common descriptive statistics"
-            )
-            common_measurements = [
-                "=" * 23,
-                "Mean: Average for data calculated by taking sum divided of data divided by sample size. Mean is affected by outliers and can be less reliable in smaller datasets",
-                "Standard deviation: Measurement of average spread of data. Standard deviation can be used along with mean to approximate data using a normal distrubtion or other theoritical distrubtions",
-                "Sample size: Total number of enteries for a dataset",
-                "Lower Quartile",
-                "Upper Quartile",
-                "Maximum",
-                "Minimum",
-                "Range",
-                "Interquartile range",
-                "r value",
-            ]
-            for measurement in common_measurements:
-                print(f"{measurement} \n")
-        elif selection == "2":
-            first_call = False
-            print("This is area for questions about hypothesis testing function")
-        elif selection == "3":
-            first_call = False
-            print(
-                "This is the area explaining functionality and ideas of confidence interval functionality"
-            )
-        elif selection.lower() == "4":
-            print(
-                "This is a simple cli based program written in python \n It's main functionality is to calculate descriptive statistics, confidence intervals, as well as perform hypothesis testing."
-            )
-            print(
-                "This program assume that it is run in a virtual enviorment with all packages from 'requirements.txt' installed.\n It also assumes that data are in the form of .csv files"
-            )
-            print(
-                "\n Since this is a cli app, I have decided to not include any graphs or visualizations for data at this point. This tool is mainly for performing calculations in a relatively fast and easy way, on csv data."
-            )
-            print(
-                "\n The reason for this is that statistics can be helpful if they are understood in terms of the data. E.g. a statistic by itself isn't useful in just the mean. But what the context behind what the data is from it explains the mean is the average from the data set"
-            )
-            first_call = False
-        elif selection.lower() == "commands":
-            first_call = True
-        elif selection.lower() == "q" or selection.lower() == "quit":
-            print("Help function exited")
-            return False
-        else:
-            print("Please enter a valid command")
