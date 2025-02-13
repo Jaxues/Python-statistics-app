@@ -57,6 +57,7 @@ Calculates the sample mean and standard deviation and then uses a Scipy confiden
 Values of alpha are given as numbers between 0 and 1, this determines the size of the interval.
 The program produces error messages if alpha is 0,1, less than 0, or not a numerical value.
 
+Function returns the lower and upper bounds for the interval based on the alpha value and data analysed from the CSV file.
 ### Save output
 This takes statistical output and creates a text file saving all data produced from using a function.
 If the user doesn't enter a name for the file, the program will automatically fill it with a timestamp instead
